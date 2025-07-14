@@ -1,7 +1,10 @@
 import torch
 import torch.nn as nn
+from torch.optim import AdamW
+
 from torch.utils.data import Dataset, DataLoader
-from transformers import AutoModel, AutoTokenizer, AdamW
+from transformers import AutoModel, AutoTokenizer #AdamW   #
+
 from sklearn.metrics import f1_score, precision_score, recall_score
 from tqdm import tqdm
 from itertools import chain
