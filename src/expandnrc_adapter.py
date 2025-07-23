@@ -11,18 +11,17 @@ from train_stance import train_model
 
 
 class EmotionVectorFactory:
-    _ORDER = ['anger', 'anticipation', 'disgust', 'fear', 'joy',
-              'sadness', 'surprise', 'trust', 'positive', 'negative']
+    _ORDER =  ['joy', 'trust', 'fear', 'surprise', 'sadness', 'disgust', 'anger', 'anticipation']
 
     def __init__(self, lexicon_path: str, threshold: float = 0.6, device: str = "cpu"):
-        lexicon = NRCLex(lexicon_path).lexicon  #__lexicon__
+        lexicon = NRCLex(lexicon_path).__lexicon__  #__lexicon__
         self._calc = EmotionFrequencyCalculator(lexicon, threshold=threshold,
                                                 device=device)
 
     def vector(self, text: str) -> List[float]:
         self._calc.load_raw_text(text)
-        freqs = self._calc.affect_frequencies
-        return [freqs.get(e, 0.0) for e in self._ORDER]
+        freqs = self._calc.raw_emotion_scores
+        return [freqs.get(e, 0) for e in self._ORDER]
 
 
 def preprocess_with_expandnrc(df: pd.DataFrame, lexicon_path: str,
@@ -44,12 +43,7 @@ def preprocess_with_expandnrc(df: pd.DataFrame, lexicon_path: str,
     evf = EmotionVectorFactory(lexicon_path,
                                device=device,
                                threshold=threshold)
-    for split, name in zip((X_tr, X_val), ('train', 'val')):
-        desc = f"Computing ExpandNRC features ({name})"
-        # Use a list comprehension with tqdm to show progress
-        # split['expnrc_feats'] = [evf.vector(text) for text in tqdm(split['text'], desc=desc)] 
-        split['nrc_feats'] = [evf.vector(" ".join(text) if isinstance(text, list) else text) 
-                         for text in tqdm(split['text'], desc=desc)]  #Test
+    X_tr["nrc_feats"] = X_tr["text"].apply((lambda edus: [evf.vector(e) for e in edus]))
     return X_tr, X_val, y_tr, y_val
 
 

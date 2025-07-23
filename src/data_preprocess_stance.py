@@ -5,7 +5,9 @@ from sklearn.model_selection import train_test_split
 
 def extract_nrc_features(text):
     emotions = ['joy', 'trust', 'fear', 'surprise', 'sadness', 'disgust', 'anger', 'anticipation']
-    scores = NRCLex(text).raw_emotion_scores
+    lexicon = NRCLex()
+    lexicon.load_raw_text(text)
+    scores = lexicon.raw_emotion_scores
     return [scores.get(e, 0) for e in emotions]
 
 
